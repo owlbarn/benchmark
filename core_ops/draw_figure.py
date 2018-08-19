@@ -100,6 +100,54 @@ def draw_axis():
         figs.append(fig)
         axes.append(axis)
 
+
+"""
+2.5. Draw axes operations
+"""
+
+def draw_axes():
+    multiaxes_data = []
+    for f in ['axes_owl.csv', 'axes_np.csv', 'axes_julia.csv']:
+        multiaxes_dict = collections.defaultdict(dict)
+        multiaxes_file = open(f, 'rb')
+        reader_multiaxes = csv.reader(multiaxes_file, delimiter=',')
+        header_multiaxes = reader_multiaxes.next()
+        header_multiaxes = header_multiaxes[1:len(header_multiaxes):2]
+        header_multiaxes = [int(float((x))) for x in header_multiaxes]
+        for val in reader_multiaxes:
+            name = val[0].split('(')[0]
+            ax   = val[0].split('=')[1][:-1]; 
+            mean = []; std  = []
+            for i in xrange(1, len(val) - 1, 2):
+                mean.append(float(val[i].strip()))
+                std.append(float(val[i+1].strip()))
+            multiaxes_dict[name][ax] = (mean, std)
+        multiaxes_file.close()
+        multiaxes_data.append(multiaxes_dict)
+
+
+    keys = multiaxes_data[0].keys()
+    for i, op in enumerate(keys):
+        fig, axis = plt.subplots(1,1)
+        rects = []
+        for a in multiaxes_data[0][op].keys():
+            rects.append(axis.errorbar(header_multiaxes, multiaxes_data[0][op][a][0], 
+                yerr=multiaxes_data[0][op][a][1], linestyle=linestyle[0], 
+                marker=markers[0], label='Owl, axes=' + a))
+            rects.append(axis.errorbar(header_multiaxes, multiaxes_data[1][op][a][0], 
+                yerr=multiaxes_data[1][op][a][1], linestyle=linestyle[1], 
+                marker=markers[1], label='Numpy, axes=' + a))
+            rects.append(axis.errorbar(header_multiaxes, multiaxes_data[2][op][a][0], 
+                yerr=multiaxes_data[2][op][a][1], linestyle=linestyle[2], 
+                marker=markers[2], label='Julia, axes=' + a))
+        axis.legend()
+        axis.set_ylabel('Time(ms)')
+        axis.set_xlabel('Single dimension size for a 4d array input')
+        axis.set_title(op)
+        figs.append(fig)
+        axes.append(axis)
+
+
 """
 3. Draw repeat operations
 """
@@ -245,6 +293,7 @@ def draw_linalg():
 
 draw_simple()
 draw_axis()
+draw_axes()
 draw_repeat()
 draw_slice()
 draw_linalg()

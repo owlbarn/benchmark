@@ -18,6 +18,8 @@ fun_arr_name = ["copy", "abs", "exp", "log", "sqrt", "cbrt", "sin", "tan",
 fun_axis_arr = [np.max, np.sum, np.prod, np.cumprod, np.maximum.accumulate]
 fun_axis_arr_name = ["max", "sum", "prod", "cumprod", "cummax"]
 
+fun_axes_arr = [np.sum]
+fun_axes_arr_name = ["sum_reduce"]
 
 def rep(x, axes):
     y = x
@@ -88,6 +90,14 @@ def evalop_axis_arr(axis, fn, name, sz):
     return timing(f, "%s (axis=%d, %s)" % (name, axis, str(sz)))
 
 
+def evalop_axes_arr(axis, fn, name, sz):
+    def f ():
+        inp = uniform_unpack(sz)
+        def g(): return fn(inp, axis=axis)
+        return time_fun(g)
+    return timing(f, "%s (axes=%s, %s)" % (name, str(axis), str(sz)))
+
+
 def evalop_repeat(axes, fn, name, sz): 
     def f(): 
         inp = np.ones(sz)
@@ -150,6 +160,23 @@ def test_axis():
       result_str += "\n"
   return result_str
 
+def test_axes():
+  sz = [[10, 10, 10, 10], [20, 20, 20, 20], [30, 30, 30, 30],
+    [40, 40, 40, 40], [50, 50, 50, 50], [60, 60, 60, 60],
+    [70, 70, 70, 70]]
+  sz_str = "10,,20,,30,,40,,50,,60,,70"
+  axes = [(0,3), (0,2)]
+  result_str = "," + sz_str + "\n"
+  for i in range(len(fun_axes_arr)):
+    for k in range(len(axes)):
+      axes_str = '*'.join(map(str, axes[k]))
+      result_str += "%s(axes=%s)," % (fun_axes_arr_name[i], axes_str)
+      for j in range(len(sz)):
+        mu, std = evalop_axes_arr(axes[k], fun_axes_arr[i], 
+            fun_axes_arr_name[i], sz[j])
+        result_str += "%.4f, %.4f," % (mu, std)
+      result_str += "\n"
+  return result_str
 
 def test_repeat(): 
   sz = [[10, 10, 10, 10], [15, 15, 15, 15], [20, 20, 20, 20], 
@@ -220,6 +247,7 @@ def write_file(fname, output_str):
 
 write_file('simple_np.csv', test_simple())
 write_file('axis_np.csv',   test_axis())
+write_file('axes_np.csv',   test_axes())
 write_file('repeat_np.csv', test_repeat())
 write_file('slice_np.csv',  test_slicing())
 write_file('linalg_np.csv', test_linalg())

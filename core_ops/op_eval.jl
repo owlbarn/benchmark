@@ -21,6 +21,9 @@ fun_arr_name = ["copy", "abs", "exp", "log", "sqrt", "cbrt", "sin", "tan",
 fun_axis_arr = [maximum, sum, prod, cumprod, cummax]
 fun_axis_arr_name = ["max", "sum", "prod", "cumprod", "cummax"]
 
+fun_axes_arr = [sum]
+fun_axes_arr_name = ["sum_reduce"]
+
 function matm(x) return x * x end 
 fun_linalg = [matm, inv, eigvals, svd, lu, qr]
 fun_linalg_name = ["matmul", "inv", "eigvals", "svd", "lu", "qr"]
@@ -102,6 +105,19 @@ function evalop_axis_arr(axis, fn, name, sz)
 end
 
 
+function evalop_axes_arr(axis, fn, name, sz)
+    function f()
+        inp = rand(Float32, sz)
+        discard = fn(inp, axis)
+        function g() 
+            return fn(inp, axis)
+        end
+        return time_fun(g)
+    end
+    return timing(f, @sprintf("%s (axis=%s, %s)", name, string(axis), string(sz)))
+end
+
+
 function evalop_repeat(axes, fn, name, sz)
     function f() 
         inp = rand(Float32, sz)
@@ -180,6 +196,29 @@ function evaluate_axis()
             for j = 1:length(sz)
                 mu, std = evalop_axis_arr(axis[k], fun_axis_arr[i], 
                     fun_axis_arr_name[i], sz[j])
+                result_str *= @sprintf("%.4f, %.4f,", mu, std)
+            end
+            result_str *= "\n"
+        end
+    end
+    return result_str
+end
+
+
+function test_axes()
+    sz = [(10, 10, 10, 10), (20, 20, 20, 20), (30, 30, 30, 30),
+        (40, 40, 40, 40), (50, 50, 50, 50), (60, 60, 60, 60), (70, 70, 70, 70)]
+    sz_str = "10,,20,,30,,40,,50,,60,,70"
+    axis = [(1,4), (1,3)]
+    axis_for_str = [(0,3), (0,2)]
+    result_str = "," * sz_str * "\n"
+    for i = 1:length(fun_axes_arr)
+        for k = 1:length(axis)
+            axes_str = join(axis_for_str[k], '*')
+            result_str *= @sprintf("%s(axes=%s),", fun_axes_arr_name[i], axes_str)
+            for j = 1:length(sz)
+                mu, std = evalop_axes_arr(axis[k], fun_axes_arr[i], 
+                    fun_axes_arr_name[i], sz[j])
                 result_str *= @sprintf("%.4f, %.4f,", mu, std)
             end
             result_str *= "\n"
@@ -286,6 +325,7 @@ end
 
 write_file("simple_julia.csv", evaluate_simple())
 write_file("axis_julia.csv",   evaluate_axis())
+write_file("axes_julia.csv",   evaluate_axes())
 #write_file("repeat_julia.csv", evaluate_repeat())
 write_file("slice_julia.csv",  evaluate_slice())
 write_file("linalg_julia.csv", evaluate_linalg())

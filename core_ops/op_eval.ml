@@ -31,6 +31,10 @@ let cummax_a  ~axis = N.cummax ~axis
 let fun_axis_arr = [|max_a; sum_a; prod_a; cumprod_a; cummax_a|]
 let fun_axis_arr_name = [|"max"; "sum"; "prod"; "cumprod"; "cummax"|]
 
+let sum_reduce_a ~axis = N.sum_reduce ~axis
+let fun_axes_arr = [|sum_reduce_a|]
+let fun_axes_arr_name = [|"sum_reduce"|]
+
 (* Repeat operations *)
 
 let fun_repeat = N.([|repeat; tile|])
@@ -105,6 +109,17 @@ let evalop_axis_arr axis fn name sz =
   in
   let sz_str = Owl_utils_array.to_string string_of_int sz in
   timing f (Printf.sprintf "%s (axis=%d, %s)" name axis sz_str)
+
+
+let evalop_axes_arr axis fn name sz =
+  let f () = 
+    let inp = N.uniform sz in
+    let g () = fn ~axis inp in
+    Owl_utils.time g
+  in
+  let sz_str = Owl_utils_array.to_string string_of_int sz in
+  let ax_str = Owl_utils_array.to_string string_of_int axis in
+  timing f (Printf.sprintf "%s (axis=%s, %s)" name ax_str sz_str)
 
 
 let evalop_repeat axes fn name sz = 
@@ -185,6 +200,31 @@ let evaluate_axis () =
       for j = 0 to (Array.length sz - 1) do 
         let mu, std = evalop_axis_arr axis.(k) fun_axis_arr.(i) 
           fun_axis_arr_name.(i) sz.(j) in
+        result_str := !result_str ^ (Printf.sprintf "%.4f, %.4f," mu std)
+      done;
+      result_str := !result_str ^ "\n"
+    done;
+  done;
+  !result_str
+
+
+let test_axes () = 
+  let sz = [|[|10; 10; 10; 10|]; [|20; 20; 20; 20|]; 
+    [|30; 30; 30; 30|]; [|40; 40; 40; 40|]; 
+    [|50; 50; 50; 50|]; [|60; 60; 60; 60|];
+    [|70; 70; 70; 70|]|] in
+  let sz_str = "10,,20,,30,,40,,50,,60,,70" in
+  let axes = [|[|0;3|]; [|0;2|]|] in
+
+  let result_str = ref ("," ^ sz_str ^ "\n") in
+  for i = 0 to (Array.length fun_axes_arr - 1) do
+    for k = 0 to (Array.length axes - 1) do
+      let axes_str = Owl_utils_array.to_string ~sep:"*" string_of_int axes.(k) in
+      result_str := !result_str ^ (Printf.sprintf "%s(axes=%s)," 
+        fun_axes_arr_name.(i) axes_str);
+      for j = 0 to (Array.length sz - 1) do 
+        let mu, std = evalop_axes_arr axes.(k) fun_axes_arr.(i) 
+          fun_axes_arr_name.(i) sz.(j) in
         result_str := !result_str ^ (Printf.sprintf "%.4f, %.4f," mu std)
       done;
       result_str := !result_str ^ "\n"
@@ -277,6 +317,7 @@ let evaluate_linalg () =
 let _ = 
   evaluate_simple  () |> Owl_io.write_file "simple_owl.csv";
   evaluate_axis    () |> Owl_io.write_file "axis_owl.csv" ;
+  evaluate_axes    () |> Owl_io.write_file "axes_owl.csv" ;
   evaluate_repeat  () |> Owl_io.write_file "repeat_owl.csv";
   evaluate_slicing () |> Owl_io.write_file "slice_owl.csv";
   evaluate_linalg  () |> Owl_io.write_file "linalg_owl.csv"
