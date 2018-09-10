@@ -6,8 +6,12 @@ import scipy.linalg
 import time
 import math
 
+# Unary vectorised math operations
+
 fun_arr_arr = [np.add, np.multiply, np.divide, np.power, np.hypot, np.minimum, np.fmod]
 fun_arr_arr_name = ["add", "mul", "div", "pow", "hypot", "min2", "fmod"]
+
+# Binary vectorised math operations
 
 def sigmoid(x): return 1 / (1 + np.exp(-x))
 fun_arr = [np.copy, np.abs, np.exp, np.log, np.sqrt, np.cbrt, np.sin, np.tan, 
@@ -15,11 +19,15 @@ fun_arr = [np.copy, np.abs, np.exp, np.log, np.sqrt, np.cbrt, np.sin, np.tan,
 fun_arr_name = ["copy", "abs", "exp", "log", "sqrt", "cbrt", "sin", "tan", 
   "asin", "sinh", "asinh", "round", "sort", "sigmoid"]
 
+# Fold and scan operations
+
 fun_axis_arr = [np.max, np.sum, np.prod, np.cumprod, np.maximum.accumulate]
 fun_axis_arr_name = ["max", "sum", "prod", "cumprod", "cummax"]
 
 fun_axes_arr = [np.sum]
 fun_axes_arr_name = ["sum_reduce"]
+
+# Repeat operations
 
 def rep(x, axes):
     y = x
@@ -29,11 +37,14 @@ def rep(x, axes):
 fun_repeat = [np.tile, rep]
 fun_repeat_name = ["tile","repeat"]
 
+# Linear Algebra operation
+
 def matm(x) : return np.matmul(x, x)
 fun_linalg = [matm, np.linalg.inv, np.linalg.eigvals, np.linalg.svd, 
     scipy.linalg.lu, np.linalg.qr]
 fun_linalg_name = ["matmul", "inv", "eigvals", "svd", "lu", "qr"]
 
+# Timing functions
 
 def time_fun(fn):
     start = time.time()
@@ -41,10 +52,12 @@ def time_fun(fn):
     end = time.time()
     return (end - start) * 1000
 
+
 def remove_outlier(arr):
     fp = np.percentile(arr, 25)
     tp = np.percentile(arr, 75)
     return filter(lambda x : (x >= fp) and (x <= tp), arr)
+
 
 def timing(fn, msg):
     c = 30
@@ -58,12 +71,16 @@ def timing(fn, msg):
     print "| %s :\t mean = %.5f \t std = %.5f" % (msg, m_time, s_time)
     return m_time, s_time
 
+
 def uniform(sz):
     a = np.random.rand(sz)
     return a.astype('float32')
+
+
 def uniform_unpack(sz):
     a = np.random.rand(*sz)
     return a.astype('float32')
+
 
 def evalop_arr_arr(fn, name, sz): 
   def f(): 
@@ -122,7 +139,9 @@ def evalop_linalg(fn, name, sz):
     return timing(f, "%s (%d*%d)" % (name, sz[0], sz[1]))
 
 
-def test_simple():
+# Evaluate simple arr and arr_arr operations
+
+def evaluate_simple():
     sz = [10, 100, 1000, 10000, 100000, 200000, 400000, 600000, 800000, 1000000]
     sz_str = "10,,100,,1000,,1e4,,1e5,,2e5,,4e5,,6e5,,8e5,,1e6"
 
@@ -143,8 +162,9 @@ def test_simple():
 
     return result_str
 
+# Evaluate axis operations
 
-def test_axis():
+def evaluate_axis():
   sz = [[10, 10, 10, 10], [20, 20, 20, 20], [30, 30, 30, 30],
     [40, 40, 40, 40], [50, 50, 50, 50], [60, 60, 60, 60]]
   sz_str = "10,,20,,30,,40,,50,,60"
@@ -160,7 +180,9 @@ def test_axis():
       result_str += "\n"
   return result_str
 
-def test_axes():
+# Evaluate axes operations
+
+def evaluate_axes():
   sz = [[10, 10, 10, 10], [20, 20, 20, 20], [30, 30, 30, 30],
     [40, 40, 40, 40], [50, 50, 50, 50], [60, 60, 60, 60],
     [70, 70, 70, 70]]
@@ -178,7 +200,10 @@ def test_axes():
       result_str += "\n"
   return result_str
 
-def test_repeat(): 
+
+# Evaluate repeat operations
+
+def evaluate_repeat(): 
   sz = [[10, 10, 10, 10], [15, 15, 15, 15], [20, 20, 20, 20], 
     [25, 25, 25, 25], [30, 30, 30, 30], [35, 35, 35, 35]] 
   sz_str = "10,,15,,20,,25,,30,,35"
@@ -196,7 +221,9 @@ def test_repeat():
   return result_str
 
 
-def test_slicing (): 
+# Evaluate repeat operations
+
+def evaluate_slicing (): 
     sz = [[10, 300, 3000], [3000, 300, 10]]
     sz_str = "10*300*3000,,3000*300*10"
     index = [
@@ -224,7 +251,9 @@ def test_slicing ():
     return result_str
 
 
-def test_linalg ():
+# Evaluate linear algebra operations
+
+def evaluate_linalg ():
     sz = [[10, 10], [50, 50], [100, 100],
         [150, 150], [200, 200], [300, 300], [400, 400],
         [600, 600], [800, 800], [1000, 1000]]
@@ -245,9 +274,10 @@ def write_file(fname, output_str):
     with open(fname, "w") as csv:
         csv.write(output_str)
 
-write_file('simple_np.csv', test_simple())
-write_file('axis_np.csv',   test_axis())
-write_file('axes_np.csv',   test_axes())
-write_file('repeat_np.csv', test_repeat())
-write_file('slice_np.csv',  test_slicing())
-write_file('linalg_np.csv', test_linalg())
+
+write_file('simple_np.csv', evaluate_simple())
+write_file('axis_np.csv',   evaluate_axis())
+write_file('axes_np.csv',   evaluate_axes())
+write_file('repeat_np.csv', evaluate_repeat())
+write_file('slice_np.csv',  evaluate_slicing())
+write_file('linalg_np.csv', evaluate_linalg())

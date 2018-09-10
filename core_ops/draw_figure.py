@@ -1,25 +1,31 @@
-import csv 
+#!/usr/bin/python
+
+import os
+import csv
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 import collections
 
-font=16 #'x-large'
+font=14 #'x-large'
 params = {'legend.fontsize': font,
-         'figure.figsize': (1000, 500),
+         #'figure.figsize': (160, 100),
          'axes.labelsize': font,
          'axes.titlesize': font,
          'xtick.labelsize':font,
          'ytick.labelsize':font}
+matplotlib.rcParams.update(params)
 
 figs = []; axes = []
 linestyle = ['-','--','-.']
 markers   = ['^','o','s']
+hatches   = ['/', '\\', '.']
+
 
 """
 1. Draw simple operations
 """
-
 
 def draw_simple():
     simple_data = []
@@ -39,7 +45,6 @@ def draw_simple():
             simple_owl_dict[name] = (mean, std)
         simple_owl.close()
         simple_data.append(simple_owl_dict)
-
 
     keys = simple_data[0].keys()#[0:9]
     for i, op in enumerate(keys):
@@ -80,7 +85,6 @@ def draw_axis():
             axis_owl_dict[name][int(axis)] = (mean, std)
         axis_owl.close()
         axis_data.append(axis_owl_dict)
-
 
     figs_axis= []; axes_axis = []
     keys = axis_data[0].keys()
@@ -124,7 +128,6 @@ def draw_axes():
             multiaxes_dict[name][ax] = (mean, std)
         multiaxes_file.close()
         multiaxes_data.append(multiaxes_dict)
-
 
     keys = multiaxes_data[0].keys()
     for i, op in enumerate(keys):
@@ -172,7 +175,6 @@ def draw_repeat():
         repeat_file.close()
         repeat_data.append(repeat_dict)
 
-
     keys = repeat_data[0].keys()
     for i, op in enumerate(keys):
         fig, axis = plt.subplots(1,1)
@@ -190,6 +192,7 @@ def draw_repeat():
         axis.set_title(op)
         figs.append(fig)
         axes.append(axis)
+
 
 """
 4. Draw slicing operations
@@ -215,7 +218,6 @@ def draw_slice():
         slice_file.close()
         slice_data.append(slice_dict)
 
-
     slice_alter = collections.defaultdict(dict)
     keys = slice_data[0]['get_slice'].keys()
 
@@ -239,6 +241,7 @@ def draw_slice():
             m, s = slice_alter[lib][sz]
             rects.append(axis.bar(ind + bar_width * counter, m,
                 bar_width, 
+                hatch=hatches[i],
                 yerr=s,
                 label=lib + ', ' + sz))
             counter += 1
@@ -274,7 +277,6 @@ def draw_linalg():
         linalg_owl.close()
         linalg_data.append(linalg_owl_dict)
 
-
     keys = linalg_data[0].keys()[0:9]
     for i, op in enumerate(keys):
         fig, axis = plt.subplots(1,1)
@@ -291,6 +293,7 @@ def draw_linalg():
         figs.append(fig)
         axes.append(axis)
 
+
 draw_simple()
 draw_axis()
 draw_axes()
@@ -298,10 +301,21 @@ draw_repeat()
 draw_slice()
 draw_linalg()
 
+"""
+Output method #1: direct
+"""
+
 #plt.show()
 
-counter = 0
+"""
+Output method #2: save as file
+"""
+
 prefix = 'fig/'
+if not os.path.exists(prefix):
+    os.makedirs(prefix)
+
+counter = 0
 for fig in figs:
     fig.savefig(prefix +'op_eval' + str(counter) + '.png', dpi=500)
     counter += 1

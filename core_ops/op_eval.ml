@@ -56,7 +56,7 @@ let fun_linalg = [|matmul; inv; eigvals; svd; lu; qr|]
 let fun_linalg_name = [|"matmul"; "inv"; "eigvals"; "svd"; "lu"; "qr"|]
 
 
-(* Timing function *)
+(* Timing functions *)
 
 let remove_outlier arr = 
   let first_perc = Owl_stats.percentile arr 25. in
@@ -86,7 +86,7 @@ let evalop_arr_arr fn name sz =
   let f () = 
     let inp1 = N.uniform [|sz|] in
     let inp2 = N.uniform [|sz|] in
-    let g () = fn inp1 inp2 in
+    let g () = fn inp1 inp2 |> ignore in
     Owl_utils.time g
   in 
   timing f (Printf.sprintf "%s (%d)" name sz)
@@ -95,16 +95,16 @@ let evalop_arr_arr fn name sz =
 let evalop_arr fn name sz = 
   let f () = 
     let inp = N.uniform [|sz|] in
-    let g () = fn inp in
+    let g () = fn inp |> ignore in
     Owl_utils.time g
-  in 
+  in
   timing f (Printf.sprintf "%s (%d)" name sz)
 
 
 let evalop_axis_arr axis fn name sz =
   let f () = 
     let inp = N.uniform sz in
-    let g () = fn ~axis inp in
+    let g () = fn ~axis inp |> ignore in
     Owl_utils.time g
   in
   let sz_str = Owl_utils_array.to_string string_of_int sz in
@@ -114,7 +114,7 @@ let evalop_axis_arr axis fn name sz =
 let evalop_axes_arr axis fn name sz =
   let f () = 
     let inp = N.uniform sz in
-    let g () = fn ~axis inp in
+    let g () = fn ~axis inp |> ignore in
     Owl_utils.time g
   in
   let sz_str = Owl_utils_array.to_string string_of_int sz in
@@ -125,7 +125,7 @@ let evalop_axes_arr axis fn name sz =
 let evalop_repeat axes fn name sz = 
   let f () = 
     let inp = N.ones sz in
-    let g () = fn inp axes in 
+    let g () = fn inp axes |> ignore in 
     Owl_utils.time g
   in
   let sz_str = Owl_utils_array.to_string string_of_int sz in
@@ -136,7 +136,7 @@ let evalop_repeat axes fn name sz =
 let evalop_slice fn name idx idx_str sz = 
   let f () = 
     let inp = N.uniform sz in
-    let g () = fn idx inp in
+    let g () = fn idx inp |> ignore in
     Owl_utils.time g
   in
   timing f (Printf.sprintf "%s (%s)" name idx_str)
@@ -149,7 +149,7 @@ let evalop_linalg fn name sz =
     let inp = M.uniform h w in
     let inp = M.mul_scalar inp 2. in
     let inp = M.sub_scalar inp 1. in
-    let g () = fn inp in
+    let g () = fn inp |> ignore in
     Owl_utils.time g
   in
   let sz_str = Printf.sprintf "%d*%d" sz.(0) sz.(1) in
@@ -207,8 +207,9 @@ let evaluate_axis () =
   done;
   !result_str
 
+(* Evaluate axes operations *)
 
-let test_axes () = 
+let evaluate_axes () = 
   let sz = [|[|10; 10; 10; 10|]; [|20; 20; 20; 20|]; 
     [|30; 30; 30; 30|]; [|40; 40; 40; 40|]; 
     [|50; 50; 50; 50|]; [|60; 60; 60; 60|];
@@ -232,7 +233,8 @@ let test_axes () =
   done;
   !result_str
 
-(* Evaluate axes operations *)
+
+(* Evaluate repeat operations *)
 
 let evaluate_repeat () = 
   let sz = [|[|10; 10; 10; 10|]; [|15; 15; 15; 15|]; [|20; 20; 20; 20|]; 
@@ -256,6 +258,8 @@ let evaluate_repeat () =
   done;
   !result_str
 
+
+(* Evaluate slicing operations *)
 
 let evaluate_slicing () = 
   let sz = [|[|10; 300; 3000|]; [|3000; 300; 10|]|] in
@@ -292,6 +296,7 @@ let evaluate_slicing () =
     result_str := !result_str ^ "\n"
   done;
   !result_str
+
 
 (* Evaluate linear algebra operations *)
 

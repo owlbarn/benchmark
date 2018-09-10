@@ -1,7 +1,11 @@
 #!/usr/bin/env julia
 
+# Unary vectorised math operations
+
 fun_arr_arr = [(+), (.*), (./), (.^), hypot, min, mod]
 fun_arr_arr_name = ["add", "mul", "div", "pow", "hypot", "min2", "fmod"]
+
+# Binary vectorised math operations
 
 function sigmoid(z)
     return 1.0 ./ (1.0 .+ exp.(-z))
@@ -18,15 +22,15 @@ fun_arr = [copy, abs, exp_a, log, sqrt_a, cbrt, sin, tan,
 fun_arr_name = ["copy", "abs", "exp", "log", "sqrt", "cbrt", "sin", "tan", 
   "asin", "sinh", "asinh", "round", "sort", "sigmoid"]
 
+# Fold and scan operations
+
 fun_axis_arr = [maximum, sum, prod, cumprod, cummax]
 fun_axis_arr_name = ["max", "sum", "prod", "cumprod", "cummax"]
 
 fun_axes_arr = [sum]
 fun_axes_arr_name = ["sum_reduce"]
 
-function matm(x) return x * x end 
-fun_linalg = [matm, inv, eigvals, svd, lu, qr]
-fun_linalg_name = ["matmul", "inv", "eigvals", "svd", "lu", "qr"]
+# Repeat operations
 
 function rep(x, s)
   return repeat(x, inner=s)
@@ -37,6 +41,13 @@ end
 fun_repeat = [rep, tile]
 fun_repeat_name = ["repeat", "tile"]
 
+# Linear Algebra operation
+
+function matm(x) return x * x end 
+fun_linalg = [matm, inv, eigvals, svd, lu, qr]
+fun_linalg_name = ["matmul", "inv", "eigvals", "svd", "lu", "qr"]
+
+# Timing functions
 
 function time_fun(fn)
     return (@elapsed fn()) * 1000
@@ -158,6 +169,8 @@ function evalop_linalg(fn, name, sz)
 end
 
 
+# Evaluate simple arr and arr_arr operations
+
 function evaluate_simple()
     sz = [10, 100, 1000, 10000, 100000, 200000, 400000, 600000, 800000, 1000000]
     sz_str = "10,,100,,1000,,1e4,,1e5,,2e5,,4e5,,6e5,,8e5,,1e6"
@@ -184,6 +197,8 @@ function evaluate_simple()
 end
 
 
+# Evaluate axis operations
+
 function evaluate_axis()
     sz = [(10, 10, 10, 10), (20, 20, 20, 20), (30, 30, 30, 30),
         (40, 40, 40, 40), (50, 50, 50, 50), (60, 60, 60, 60)]
@@ -205,7 +220,9 @@ function evaluate_axis()
 end
 
 
-function test_axes()
+# Evaluate axes operations
+
+function evaluate_axes()
     sz = [(10, 10, 10, 10), (20, 20, 20, 20), (30, 30, 30, 30),
         (40, 40, 40, 40), (50, 50, 50, 50), (60, 60, 60, 60), (70, 70, 70, 70)]
     sz_str = "10,,20,,30,,40,,50,,60,,70"
@@ -228,6 +245,8 @@ function test_axes()
 end
 
 
+# Evaluate repeat operations
+
 function evaluate_repeat()
     sz = [(10, 10, 10, 10), (15, 15, 15, 15), (20, 20, 20, 20), 
         (25, 25, 25, 25), (30, 30, 30, 30), (35, 35, 35, 35)]
@@ -249,6 +268,8 @@ function evaluate_repeat()
     return result_str
 end
 
+
+# Evaluate repeat operations
 
 # TODO: use general unpack operations; the index is not flexible
 function evaluate_slice()
@@ -296,6 +317,8 @@ function evaluate_slice()
 end
 
 
+# Evaluate linear algebra operations
+
 function evaluate_linalg()
     sz = [(10, 10), (50, 50), (100, 100),
         (150, 150), (200, 200), (300, 300), (400, 400),
@@ -326,6 +349,6 @@ end
 write_file("simple_julia.csv", evaluate_simple())
 write_file("axis_julia.csv",   evaluate_axis())
 write_file("axes_julia.csv",   evaluate_axes())
-#write_file("repeat_julia.csv", evaluate_repeat())
+# write_file("repeat_julia.csv", evaluate_repeat())
 write_file("slice_julia.csv",  evaluate_slice())
 write_file("linalg_julia.csv", evaluate_linalg())
