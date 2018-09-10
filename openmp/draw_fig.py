@@ -1,16 +1,19 @@
+#!/usr/bin/python
+
 import csv 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 
-font=16 #'x-large'
+font=13 #'x-large'
 params = {'legend.fontsize': font,
-         'figure.figsize': (1000, 500),
+         #'figure.figsize': (160, 100),
          'axes.labelsize': font,
          'axes.titlesize': font,
          'xtick.labelsize':font,
          'ytick.labelsize':font}
-
+matplotlib.rcParams.update(params)
 
 N = 7 # number of function
 nt = 11 # number of test cases for each fucntion
@@ -18,7 +21,7 @@ n = 3 # number of test cases: no-omp, omp-thrd=2, ...
 label = ['no-omp', 'omp-thrd-2', 'omp-thrd-4']
 ops = ['abs', 'sin', 'erf', 'add', 'pow', 'copy', 'conv2d']
 mus = [[], [], []]; stds = [[], [], []]; sizes = []
-with open("openmp_crossover.csv", 'rb') as csvf:
+with open("openmp_cross.csv", 'rb') as csvf:
     reader = csv.reader(csvf, delimiter=',')
     for val in reader:
         sizes.append(float(val[0]))
@@ -30,7 +33,6 @@ with open("openmp_crossover.csv", 'rb') as csvf:
         stds[2].append(float(val[6]))
 
 figs = []; ax = []
-#sizes = [1e1, 1e2, 1e3, 1e4, 1e5, 2e5, 4e5, 6e5, 8e6, 1e7, 2e7]
 
 fig, ax = plt.subplots(2,2)
 for i in range(4):

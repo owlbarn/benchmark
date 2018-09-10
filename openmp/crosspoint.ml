@@ -1,3 +1,5 @@
+#!/usr/bin/env owl
+
 open Owl
 module N = Dense.Ndarray.S
 
@@ -17,6 +19,7 @@ let n = Array.length test_len
 let test_len_f = Array.map float_of_int test_len 
 let test_len_sqrt = N.(of_array test_len_f [|n|] |> sqrt |> to_array |> Array.map int_of_float)
 
+
 let remove_outlier arr = 
   let first_perc = Owl_stats.percentile arr 25. in
   let third_perc = Owl_stats.percentile arr 75. in 
@@ -24,8 +27,9 @@ let remove_outlier arr =
   List.filter (fun x -> (x >= first_perc) && (x <= third_perc)) lst 
   	|> Array.of_list 
 
+
 let timing fn msg = 
-	let c = 40 in 
+	let c = 5 in 
 	let times = Owl.Utils.Stack.make () in
   for i = 1 to c do
   	let t = fn () in 
@@ -38,6 +42,7 @@ let timing fn msg =
   Printf.printf "| %s :\t mean = %.5f \t std = %.5f \n" msg m_time s_time;
   flush stdout;
   m_time, s_time
+
 
 let f_timing_wrapper1 fn sz = 
 	let f () = 
@@ -68,6 +73,7 @@ let f_timing_wrapper3 fn sz =
 		Owl_utils.time g
 	in
 	timing f (string_of_int sz)
+
 
 let main () = 
 	let result_str = ref "" in
