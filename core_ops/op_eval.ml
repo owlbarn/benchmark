@@ -300,6 +300,7 @@ let evaluate_slicing () =
 
 (* Evaluate linear algebra operations *)
 
+(* TODO: run complied code *)
 let evaluate_linalg () = 
   let sz = [|[|10; 10|]; [|50; 50|]; [|100; 100|];
     [|150; 150|]; [|200; 200|]; [|300; 300|]; [|400; 400|]; [|600; 600|]; 
