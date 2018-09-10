@@ -1,6 +1,6 @@
 # Using OpenMP in Owl
 
-Owl provides an option of using OpenMP in compiling. The script here briefly evaluates the impact of using OpenMP on several core N-dimensional array operations. In this doc we briefly introduce how to reproduce the results. 
+Owl provides an option of using OpenMP in compiling. The script here aims to evaluate the impact of using OpenMP on several core N-dimensional array operations. In this doc we briefly introduce how to reproduce the results. 
 **Note:** The current script selects only a few operations, and is not well-automated. It will be updated.
 
 1. Compile and install Owl without the OpenMP option, and then run the script `crosspoint.ml`. It will generate a file `eval_omp_cross.csv`. Then run `cp eval_omp_cross.csv openmp_cross.csv`.
